@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.inimai.ai_email_assistant.dtos.LoginRequest;
 import com.inimai.ai_email_assistant.dtos.RegisterRequest;
 import com.inimai.ai_email_assistant.dtos.RegisterResponse;
 import com.inimai.ai_email_assistant.entity.User;
@@ -51,5 +52,20 @@ public class UserService {
     response.setEmail(savedUser.getEmail());
 
     return response;
+    }
+    public LoginResponse login(LoginRequest request) {
+        User user = userrepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new RuntimeException("Invalid email or password"));
+
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            throw new RuntimeException("Invalid password");
+        }
+
+        LoginResponse response = new LoginResponse();
+        response.setId(user.getId());
+        response.setUsername(user.getUsername());
+        response.setEmail(user.getEmail());
+
+        return response;
     }
 }
