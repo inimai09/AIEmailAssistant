@@ -8,6 +8,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.inimai.ai_email_assistant.dtos.LoginRequest;
+import com.inimai.ai_email_assistant.dtos.LoginResponse;
 import com.inimai.ai_email_assistant.dtos.RegisterRequest;
 import com.inimai.ai_email_assistant.dtos.RegisterResponse;
 import com.inimai.ai_email_assistant.entity.User;
