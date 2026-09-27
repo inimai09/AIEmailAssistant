@@ -13,15 +13,22 @@ import com.inimai.ai_email_assistant.dtos.RegisterRequest;
 import com.inimai.ai_email_assistant.dtos.RegisterResponse;
 import com.inimai.ai_email_assistant.entity.User;
 import com.inimai.ai_email_assistant.repository.UserRepository;
+import com.inimai.ai_email_assistant.security.JwtUtil;
 
 @Service
 public class UserService {
+    private final JwtUtil jwtUtil;
     private final UserRepository userrepository;
     private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userrepository, PasswordEncoder passwordEncoder) {
-        this.userrepository = userrepository;
-        this.passwordEncoder = passwordEncoder;
+    public UserService(
+                UserRepository userrepository,
+                PasswordEncoder passwordEncoder,
+                JwtUtil jwtUtil) {
+
+                this.userrepository = userrepository;
+                this.passwordEncoder = passwordEncoder;
+                this.jwtUtil = jwtUtil;
     }
     private static final Logger logger =
         LoggerFactory.getLogger(UserService.class);
@@ -62,10 +69,14 @@ public class UserService {
             throw new RuntimeException("Invalid password");
         }
 
-        LoginResponse response = new LoginResponse();
-        response.setId(user.getId());
-        response.setUsername(user.getUsername());
-        response.setEmail(user.getEmail());
+            String token = jwtUtil.generateToken(user.getEmail());
+
+            LoginResponse response = new LoginResponse();
+
+            response.setId(user.getId());
+            response.setUsername(user.getUsername());
+            response.setEmail(user.getEmail());
+            response.setToken(token);
 
         return response;
     }
