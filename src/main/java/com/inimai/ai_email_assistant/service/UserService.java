@@ -28,31 +28,31 @@ public class UserService {
     
     public RegisterResponse register(RegisterRequest request) {
 
-    logger.info("Registration attempt for email: {}", request.getEmail());
+            logger.info("Registration attempt for email: {}", request.getEmail());
 
-    if (userrepository.findByEmail(request.getEmail()).isPresent()) {
-        logger.warn("Registration failed: email already registered");
-        throw new RuntimeException("Email already registered");
-    }
+            if (userrepository.findByEmail(request.getEmail()).isPresent()) {
+                logger.warn("Registration failed: email already registered");
+                throw new RuntimeException("Email already registered");
+            }
 
-    User user = new User();
+            User user = new User();
 
-    user.setUsername(request.getUsername());
-    user.setEmail(request.getEmail());
-    user.setPassword(passwordEncoder.encode(request.getPassword()));
-    user.setCreatedAt(LocalDateTime.now());
+            user.setUsername(request.getUsername());
+            user.setEmail(request.getEmail());
+            user.setPassword(passwordEncoder.encode(request.getPassword()));
+            user.setCreatedAt(LocalDateTime.now());
 
-    User savedUser = userrepository.save(user);
+            User savedUser = userrepository.save(user);
 
-    logger.info("User registered successfully with id: {}", savedUser.getId());
+            logger.info("User registered successfully with id: {}", savedUser.getId());
 
-    RegisterResponse response = new RegisterResponse();
+            RegisterResponse response = new RegisterResponse();
 
-    response.setId(savedUser.getId());
-    response.setUsername(savedUser.getUsername());
-    response.setEmail(savedUser.getEmail());
+            response.setId(savedUser.getId());
+            response.setUsername(savedUser.getUsername());
+            response.setEmail(savedUser.getEmail());
 
-    return response;
+            return response;
     }
     public LoginResponse login(LoginRequest request) {
         User user = userrepository.findByEmail(request.getEmail())
