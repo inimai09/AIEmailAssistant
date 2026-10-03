@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.inimai.ai_email_assistant.dtos.EmailGenerateRequest;
+import com.inimai.ai_email_assistant.service.EmailService;
 
 import jakarta.validation.Valid;
 
@@ -13,10 +14,16 @@ import jakarta.validation.Valid;
 @RequestMapping("/api/email")
 public class EmailController {
 
+    private final EmailService emailService;
+
+    public EmailController(EmailService emailService) {
+        this.emailService = emailService;
+    }
+
     @PostMapping("/generate")
     public String generate(
             @Valid @RequestBody EmailGenerateRequest request) {
 
-        return "temporary";
+        return emailService.generateReply(request);
     }
 }
