@@ -7,13 +7,15 @@ import com.inimai.ai_email_assistant.dtos.EmailGenerateRequest;
 @Service
 public class EmailService {
 
+    private final QwenService qwenService;
+
+    public EmailService(QwenService qwenService) {
+        this.qwenService = qwenService;
+    }
+
     public String generateReply(EmailGenerateRequest request) {
-
-        String emailContent = request.getEmailContent();
-        String instruction = request.getInstruction();
-        //not yet used ai package com.inimai.ai_email_assistant.service;
-            return "Email: " + emailContent + "\nInstruction: " + instruction;
-
-    
+        return qwenService.generateReply(
+                request.getEmailContent(),
+                request.getInstruction());
     }
 }
