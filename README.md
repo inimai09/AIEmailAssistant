@@ -1,210 +1,116 @@
-
 # AI Email Assistant
 
-An AI-powered email assistant that helps users generate email replies directly from Gmail.
+Generate Gmail replies in one click. A Chrome extension sends the email you're reading, plus a tone or custom instruction, to a Spring Boot backend, which asks Qwen to write the reply.
 
-The project combines a Chrome Extension with a Spring Boot backend and Qwen AI to generate context-aware email responses based on the user's preferred tone or custom instruction.
+> **Status:** The backend is working and tested. The Chrome extension is the next milestone and is not built yet. See the [Roadmap](#roadmap).
 
 ---
 
-##  What Am I Building?
+## Why this project exists
 
-The goal is to make replying to emails faster and easier.
+Replying to email is repetitive. Most replies follow a pattern ("confirm the meeting," "politely decline," "ask for more details"), but writing each one still takes time. This project puts an AI assistant inside Gmail so the user can describe the reply they want and get a draft instantly.
 
-Instead of manually writing a reply, the user can:
+## Demo
 
-1. Open an email in Gmail.
-2. Click the **AI Reply** button.
-3. Choose a tone or provide a custom instruction.
-4. Send the email content and instruction to our backend.
-5. The backend sends the request to Qwen AI.
-6. Qwen generates a reply.
-7. The generated reply is returned to the extension.
-8. The extension places the reply into Gmail.
-
-### Example
-
-**Email:**
+**Email received**
 
 > Hi, can we schedule a meeting for tomorrow?
 
-**Instruction:**
+**Instruction**
 
 > Write a professional reply.
 
-**AI-generated reply:**
+**Generated reply**
 
 > Hi, tomorrow works for me. Please let me know what time works best for you.
 
 ---
 
-## 🏗️ Architecture
+## How it works
 
-```text
-                    ┌──────────────────┐
-                    │      Gmail       │
-                    └────────┬─────────┘
-                             │
-                             ▼
-                    ┌──────────────────┐
-                    │ Chrome Extension │
-                    │                  │
-                    │  AI Reply Button │
-                    └────────┬─────────┘
-                             │
-                             │ HTTP Request
-                             ▼
-                  ┌──────────────────────┐
-                  │   Spring Boot API    │
-                  │                      │
-                  │ EmailController      │
-                  │        ↓             │
-                  │ EmailService         │
-                  │        ↓             │
-                  │ QwenService          │
-                  └──────────┬───────────┘
-                             │
-                             │ API Request
-                             ▼
-                    ┌──────────────────┐
-                    │     Qwen AI      │
-                    └──────────────────┘
-                             │
-                             ▼
-                    Generated Email Reply
-````
+```mermaid
+flowchart TD
+    A[Gmail] --> B[Chrome Extension<br/>AI Reply button]
+    B -->|POST /api/email/generate| C[Spring Boot API]
+    C --> D[EmailController]
+    D --> E[EmailService]
+    E --> F[QwenService]
+    F -->|OpenAI-compatible API| G[Qwen on Alibaba Cloud Model Studio]
+    G --> H[Generated reply]
+    H --> B
+```
+
+1. The user opens an email in Gmail and clicks **AI Reply**.
+2. The extension sends the email text and the user's instruction to the backend.
+3. The backend validates the request and builds a prompt.
+4. Qwen generates the reply and the backend returns it.
+5. The extension inserts the reply into Gmail's compose box.
+
+Steps 1, 2, and 5 are planned. Steps 3 and 4 are implemented today.
 
 ---
 
-## 🛠️ Tech Stack
+## Tech stack
 
-### Backend
-
-* Java 21
-* Spring Boot
-* Spring Web
-* Bean Validation
-* Maven
-
-### AI
-
-* Qwen
-* Alibaba Cloud Model Studio
-* OpenAI-compatible API
-
-### Frontend
-
-* Chrome Extension
-* JavaScript
-* HTML
-* CSS
-
-### Development
-
-* Git
-* GitHub
-* VS Code / Cursor
+| Layer | Technology |
+|---|---|
+| Backend | Java 21, Spring Boot, Spring Web, Bean Validation, Maven |
+| AI | Qwen via Alibaba Cloud Model Studio (OpenAI-compatible API) |
+| Frontend (planned) | Chrome Extension, JavaScript, HTML, CSS |
+| Tooling | Git, GitHub |
 
 ---
 
-## 📂 Backend Structure
+## Project structure
 
 ```text
 src/main/java/com/inimai/ai_email_assistant
-
 ├── controller
-│   └── EmailController.java
-│
+│   └── EmailController.java      # REST endpoint
 ├── service
-│   ├── EmailService.java
-│   └── QwenService.java
-│
+│   ├── EmailService.java         # Business logic and prompt building
+│   └── QwenService.java          # Qwen API client
 ├── dtos
-│   └── EmailGenerateRequest.java
-│
+│   └── EmailGenerateRequest.java # Validated request body
 └── AiEmailAssistantApplication.java
 ```
 
-### Request Flow
-
-```text
-POST /api/email/generate
-        ↓
-EmailController
-        ↓
-EmailGenerateRequest
-        ↓
-EmailService
-        ↓
-QwenService
-        ↓
-Qwen API
-        ↓
-Generated reply
-```
+The code is split into three layers: the **controller** handles HTTP, the **service** holds the logic, and the **AI client** is isolated in its own class, so the model provider can be swapped without touching the rest of the app.
 
 ---
 
-## 📡 API
+## Roadmap
 
-### Generate Email Reply
+**Backend**
+- [x] Spring Boot project setup
+- [x] `POST /api/email/generate` endpoint
+- [x] Request DTO with validation
+- [x] Service layer and Qwen integration
+- [x] Environment-based API key configuration
+- [x] End-to-end request flow tested
+- [ ] Error handling and retry strategy
+- [ ] Rate limiting
+- [ ] Logging and monitoring
 
-```http
-POST /api/email/generate
-```
+**AI**
+- [x] Qwen API integration
+- [ ] Improved prompt design
+- [ ] Preset tones (professional, friendly, short, firm)
+- [ ] Context-aware replies for long email threads
 
-### Request
+**Chrome extension**
+- [ ] Detect an open email in Gmail
+- [ ] **AI Reply** button
+- [ ] Tone picker and custom instruction input
+- [ ] Connect to the backend
+- [ ] Insert the reply into the compose box
+- [ ] Loading and error states
+- [ ] Edit the reply before inserting
 
-```json
-{
-  "emailContent": "Hi, can we schedule a meeting for tomorrow?",
-  "instruction": "Write a professional reply."
-}
-```
+**Deployment**
+- [ ] Deploy the backend
+- [ ] Publish the extension
 
-##  Current Status
+## Author
 
-### Backend
-
-* [x] Spring Boot project setup
-* [x] Email generation endpoint
-* [x] Request DTO and validation
-* [x] Email service layer
-* [x] Qwen service integration
-* [x] Environment-based API key configuration
-* [x] Backend request flow tested
-
-### Chrome Extension
-
-* [ ] Gmail integration
-* [ ] AI Reply button
-* [ ] Tone selection
-* [ ] Custom instruction input
-* [ ] Connect extension to backend
-* [ ] Insert generated reply into Gmail
-
-### AI Features
-
-* [x] Qwen API integration
-* [ ] Improve prompting
-* [ ] Multiple reply tones
-* [ ] Custom instructions
-* [ ] Context-aware responses
-* [ ] Error handling and retry strategy
-
-### Future Improvements
-
-* [ ] Better UI/UX
-* [ ] Loading states
-* [ ] Response editing before insertion
-* [ ] Rate limiting
-* [ ] Logging and monitoring
-* [ ] Production deployment
-
-
-The project is being built incrementally, starting with the backend AI generation flow and then integrating it with the Chrome Extension.
-
-
-
-That makes the README honest—and honestly, it already looks like a legit project roadmap. 😭🔥
-```
+**Inimai S**, [GitHub](https://github.com/inimai09)
