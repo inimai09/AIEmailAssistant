@@ -56,8 +56,59 @@ Steps 1, 2, and 5 are planned. Steps 3 and 4 are implemented today.
 |---|---|
 | Backend | Java 21, Spring Boot, Spring Web, Bean Validation, Maven |
 | AI | OpenRouter (OpenAI-compatible Chat Completions API) |
+| Model | `nvidia/nemotron-3.5-super-vl:free` |
 | Frontend (planned) | Chrome Extension, JavaScript, HTML, CSS |
 | Tooling | Git, GitHub |
+
+> **Migration note:** The project originally used Qwen through Alibaba DashScope. It now uses OpenRouter, which allows switching between models without changing the rest of the app.
+
+---
+
+## Getting started
+
+**1. Get an API key** from [OpenRouter](https://openrouter.ai).
+
+**2. Set the key as an environment variable** (never hardcode it in source):
+
+```bash
+# macOS / Linux
+export OPENROUTER_API_KEY=your_key_here
+
+# Windows (PowerShell)
+$env:OPENROUTER_API_KEY="your_key_here"
+```
+
+`.env` files are listed in `.gitignore`, so local secrets are not committed.
+
+**3. Run the backend:**
+
+```bash
+./mvnw spring-boot:run
+```
+
+---
+
+## API reference
+
+### `POST /api/email/generate`
+
+**Request**
+
+```json
+{
+  "emailContent": "Hi, can we meet tomorrow?",
+  "instruction": "Write a professional reply."
+}
+```
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `emailContent` | string | yes | The email being replied to |
+| `instruction` | string | yes | Tone or custom instruction for the reply |
+
+Requests missing required fields are rejected by Bean Validation.
+
+**Response:** the AI-generated reply text.
 
 ---
 
@@ -78,38 +129,6 @@ src/main/java/com/inimai/ai_email_assistant
 The code is split into three layers: the **controller** handles HTTP, the **service** holds the logic, and the **AI client** is isolated in its own class, so the model provider can be swapped without touching the rest of the app.
 
 ---
-
-## Roadmap
-
-**Backend**
-- [x] Spring Boot project setup
-- [x] `POST /api/email/generate` endpoint
-- [x] Request DTO with validation
-- [x] Service layer and OpenRouter integration
-- [x] Environment-based API key configuration (`OPENROUTER_API_KEY`)
-- [x] End-to-end request flow tested
-- [ ] Error handling and retry strategy
-- [ ] Rate limiting
-- [ ] Logging and monitoring
-
-**AI**
-- [x] OpenRouter API integration
-- [ ] Improved prompt design
-- [ ] Preset tones (professional, friendly, short, firm)
-- [ ] Context-aware replies for long email threads
-
-**Chrome extension**
-- [ ] Detect an open email in Gmail
-- [ ] **AI Reply** button
-- [ ] Tone picker and custom instruction input
-- [ ] Connect to the backend
-- [ ] Insert the reply into the compose box
-- [ ] Loading and error states
-- [ ] Edit the reply before inserting
-
-**Deployment**
-- [ ] Deploy the backend
-- [ ] Publish the extension
 
 ## Author
 
