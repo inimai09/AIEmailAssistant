@@ -2,7 +2,7 @@
 
 Generate Gmail replies in one click. A Chrome extension sends the email you're reading, plus a tone or custom instruction, to a Spring Boot backend, which asks OpenRouter to write the reply.
 
-> **Status:** The backend is working and tested. The Chrome extension is the next milestone and is not built yet. See the [Roadmap](#roadmap).
+> **Status:** Backend and Chrome extension (MV3) are implemented. Load the unpacked extension from `chrome-extension/` and keep the backend running on `localhost:8080`. See the [Roadmap](#roadmap).
 
 ---
 
@@ -46,7 +46,7 @@ flowchart TD
 4. OpenRouter generates the reply and the backend returns it.
 5. The extension inserts the reply into Gmail's compose box.
 
-Steps 1, 2, and 5 are planned. Steps 3 and 4 are implemented today.
+Steps 1–5 are implemented in code. Gmail DOM behavior should be verified manually (see `chrome-extension/README.md`).
 
 ---
 
@@ -56,7 +56,7 @@ Steps 1, 2, and 5 are planned. Steps 3 and 4 are implemented today.
 |---|---|
 | Backend | Java 21, Spring Boot, Spring Web, Bean Validation, Maven |
 | AI | OpenRouter (OpenAI-compatible Chat Completions API) |
-| Frontend (planned) | Chrome Extension, JavaScript, HTML, CSS |
+| Frontend | Chrome Extension (Manifest V3), JavaScript, CSS |
 | Tooling | Git, GitHub |
 
 ---
@@ -73,6 +73,15 @@ src/main/java/com/inimai/ai_email_assistant
 ├── dtos
 │   └── EmailGenerateRequest.java # Validated request body
 └── AiEmailAssistantApplication.java
+
+chrome-extension/
+├── manifest.json                 # Manifest V3
+├── background.js                 # Calls local backend
+├── content.js                    # Gmail DOM + AI Reply panel
+├── selection-utils.js            # Textarea + contenteditable selection/replace
+├── sentence-assistant.js         # Floating sentence toolbar
+├── content.css
+└── README.md                     # Load + manual test steps
 ```
 
 The code is split into three layers: the **controller** handles HTTP, the **service** holds the logic, and the **AI client** is isolated in its own class, so the model provider can be swapped without touching the rest of the app.
@@ -99,13 +108,14 @@ The code is split into three layers: the **controller** handles HTTP, the **serv
 - [ ] Context-aware replies for long email threads
 
 **Chrome extension**
-- [ ] Detect an open email in Gmail
-- [ ] **AI Reply** button
-- [ ] Tone picker and custom instruction input
-- [ ] Connect to the backend
-- [ ] Insert the reply into the compose box
-- [ ] Loading and error states
-- [ ] Edit the reply before inserting
+- [x] Detect an open email in Gmail
+- [x] **AI Reply** button
+- [x] Tone picker and custom instruction input
+- [x] Connect to the backend
+- [x] Insert the reply into the compose box
+- [x] Loading and error states
+- [x] Edit the reply before inserting
+- [ ] Publish the extension
 
 **Deployment**
 - [ ] Deploy the backend

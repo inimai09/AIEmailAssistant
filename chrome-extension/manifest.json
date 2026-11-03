@@ -1,0 +1,28 @@
+{
+  "manifest_version": 3,
+  "name": "AI Email Assistant",
+  "version": "1.1.0",
+  "description": "Generate and refine Gmail reply drafts using your local AI Email Assistant backend.",
+  "permissions": [],
+  "host_permissions": [
+    "http://localhost:8080/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://mail.google.com/*"],
+      "js": [
+        "selection-utils.js",
+        "sentence-assistant.js",
+        "content.js"
+      ],
+      "css": ["content.css"],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_title": "AI Email Assistant"
+  }
+}

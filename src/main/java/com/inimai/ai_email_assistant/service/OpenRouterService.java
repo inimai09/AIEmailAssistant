@@ -39,13 +39,12 @@ public class OpenRouterService {
                         Map.of(
                                 "role", "system",
                                 "content",
-                                "You are an email assistant. Write a complete email reply. "
-                                        + "Follow the user's instruction for tone and content. "
-                                        + "Return only the reply text, with no extra commentary."),
+                                "You are an email writing assistant. Follow the user's instruction carefully. "
+                                        + "Return only the requested text, with no extra commentary or labels."),
                         Map.of(
                                 "role", "user",
                                 "content",
-                                "Original email:\n" + emailContent
+                                "Content:\n" + emailContent
                                         + "\n\nInstruction:\n" + instruction)));
 
         try {
