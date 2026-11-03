@@ -172,44 +172,9 @@ chrome-extension/
 
 The code is split into separate layers so that the AI provider can be changed without rewriting the controller or business logic.
 
-## Roadmap
+Author
 
-### Backend
-
-* [x] Spring Boot project setup
-* [x] `POST /api/email/generate` endpoint
-* [x] Request DTO with validation
-* [x] Service layer and OpenRouter integration
-* [x] Environment-based API key configuration (`OPENROUTER_API_KEY`)
-* [x] End-to-end request flow tested
-* [ ] Improved error handling and retry strategy
-* [ ] Rate limiting
-* [ ] Logging and monitoring
-
-### AI
-
-* [x] OpenRouter API integration
-* [ ] Improved prompt design
-* [ ] Preset tones (professional, friendly, short, firm)
-* [ ] Context-aware replies for long email threads
-
-### Chrome extension
-
-* [x] Gmail integration code
-* [x] AI Reply button implementation
-* [x] Tone picker and custom instruction input
-* [x] Backend integration
-* [x] Reply insertion implementation
-* [x] Loading and error states
-* [x] Edit the reply before inserting
-* [x] Sentence-level editing functionality
-* [ ] Complete manual verification in Gmail
-* [ ] Publish the extension
-
-### Deployment
-
-* [ ] Deploy the backend
-* [ ] Publish the extension
+Inimai S — GitHub
 
 ## Author
 
