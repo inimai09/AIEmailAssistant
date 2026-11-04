@@ -30,24 +30,37 @@
     );
   }
 
-  function findReplyToolbar() {
-    const replyCandidates = Array.from(
+  function findReplyCandidates() {
+    return Array.from(
       document.querySelectorAll(
-        'div[role="button"][aria-label^="Reply"], span[role="button"][aria-label^="Reply"]'
+        'button[aria-label], [role="button"][aria-label], span[role="link"]'
       )
     ).filter((el) => {
-      const label = (el.getAttribute("aria-label") || "").toLowerCase();
-      return label === "reply" || label.startsWith("reply ");
-    });
+      if (!isVisible(el) || el.closest("div.a3s")) return false;
 
-    for (const reply of replyCandidates) {
-      const toolbar =
-        reply.closest('[role="toolbar"]') ||
-        reply.parentElement ||
-        reply;
-      if (toolbar) return { toolbar, reply };
-    }
-    return null;
+      const label = (el.getAttribute("aria-label") || "").toLowerCase();
+      const text = (el.innerText || el.textContent || "").trim().toLowerCase();
+      const labelledReply = label === "reply" || label.startsWith("reply ");
+      const linkedReply = el.matches('span[role="link"]') && text === "reply";
+      return labelledReply || linkedReply;
+    });
+  }
+
+  function findReplyToolbar(replyCandidates = findReplyCandidates()) {
+    const reply =
+      replyCandidates.find((candidate) => candidate.closest('[role="toolbar"]')) ||
+      replyCandidates[0];
+    if (!reply) return null;
+
+    const toolbar = reply.closest('[role="toolbar"]') || reply.parentElement;
+    console.debug("[AEA] Selected Reply candidate:", {
+      element: reply,
+      tag: reply.tagName,
+      role: reply.getAttribute("role"),
+      ariaLabel: reply.getAttribute("aria-label"),
+      text: (reply.innerText || reply.textContent || "").trim(),
+    });
+    return toolbar ? { toolbar, reply } : null;
   }
 
   function tryInjectButton() {
@@ -55,15 +68,36 @@
       if (!document.body.contains(btn)) btn.remove();
     });
 
-    if (!isEmailViewOpen()) {
+    const emailViewDetected = isEmailViewOpen();
+    console.debug("[AEA] Email view detected:", emailViewDetected);
+    const replyCandidates = findReplyCandidates();
+    console.debug("[AEA] Reply candidates found:", replyCandidates.length);
+
+    if (!emailViewDetected) {
       closePanel();
+      console.debug("[AEA] AI Reply button inserted:", false, "(no email view)");
       return;
     }
 
-    const found = findReplyToolbar();
-    if (!found) return;
+    const found = findReplyToolbar(replyCandidates);
+    if (!found) {
+      console.debug("[AEA] AI Reply button inserted:", false, "(no Reply candidate)");
+      return;
+    }
 
-    if (found.toolbar.querySelector(`[${MARKER}]`)) return;
+    const buttonAlreadyVisible = Array.from(
+      document.querySelectorAll(`[${MARKER}]`)
+    ).some(isVisible);
+    if (buttonAlreadyVisible) {
+      console.debug("[AEA] AI Reply button inserted:", false, "(already present)");
+      return;
+    }
+
+    const insertionPoint = found.reply.parentElement;
+    if (!insertionPoint) {
+      console.debug("[AEA] AI Reply button inserted:", false, "(Reply has no parent)");
+      return;
+    }
 
     const button = document.createElement("button");
     button.type = "button";
@@ -76,11 +110,8 @@
       openPanel(button);
     });
 
-    if (found.reply.nextSibling) {
-      found.reply.parentElement.insertBefore(button, found.reply.nextSibling);
-    } else {
-      found.reply.parentElement.appendChild(button);
-    }
+    insertionPoint.insertBefore(button, found.reply.nextSibling);
+    console.debug("[AEA] AI Reply button inserted:", document.body.contains(button));
   }
 
   function extractEmail() {
@@ -294,16 +325,7 @@
     let composer = findComposer();
     if (composer) return composer;
 
-    const replyBtn = Array.from(
-      document.querySelectorAll(
-        'div[role="button"][aria-label^="Reply"], span[role="button"][aria-label^="Reply"]'
-      )
-    ).find((el) => {
-      const label = (el.getAttribute("aria-label") || "").toLowerCase();
-      return label === "reply" || label.startsWith("reply ");
-    });
-
-    replyBtn?.click();
+    findReplyToolbar(findReplyCandidates())?.reply.click();
 
     for (let i = 0; i < 20; i++) {
       await wait(100);
