@@ -97,25 +97,6 @@ curl -X POST http://localhost:8080/api/email/generate \
 
 **Response:** the generated reply as text. The backend handles AI API failures, missing configuration, and validation errors. Exact status codes and error bodies are not documented yet.
 
-## Limitations
-
-- Not tested end to end in live Gmail; the AI Reply button needs debugging.
-- Gmail's DOM can change and break selectors.
-- The backend must run locally and is not deployed. The extension is not published.
-- A free-tier model is configured, so availability and quality vary.
-- No retry strategy, rate limiting, or reply-quality evaluation yet.
-
-## Roadmap
-
-- [x] Spring Boot backend, endpoint, validation, service layer
-- [x] OpenRouter integration, env-based API key
-- [x] Tone and custom instructions
-- [x] Extension code: button, panel, editable drafts, insertion, sentence editing
-- [ ] Complete live Gmail testing and improve DOM compatibility
-- [ ] Better error handling, retries, rate limiting, logging
-- [ ] Improve prompts and long-thread context
-- [ ] Deploy the backend and publish the extension
-
 ## Author
 
 Inimai S
