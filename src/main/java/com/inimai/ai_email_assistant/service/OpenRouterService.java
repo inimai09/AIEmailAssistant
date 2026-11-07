@@ -11,6 +11,9 @@ import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestClientResponseException;
 
+import Exception.OpenRouterAuthenticationException;
+
+
 @Service
 public class OpenRouterService {
 
@@ -22,12 +25,17 @@ public class OpenRouterService {
             @Value("${openrouter.api-key}") String apiKey,
             @Value("${openrouter.base-url}") String baseUrl,
             @Value("${openrouter.model}") String model) {
-        this.restClient = RestClient.builder().baseUrl(baseUrl).build();
+
+        this.restClient = RestClient.builder()
+                .baseUrl(baseUrl)
+                .build();
+
         this.apiKey = apiKey;
         this.model = model;
     }
 
     public String generateReply(String emailContent, String instruction) {
+
         if (apiKey == null || apiKey.isBlank()) {
             throw new IllegalStateException(
                     "OPENROUTER_API_KEY environment variable is not set");
@@ -62,19 +70,32 @@ public class OpenRouterService {
                     || response.choices().get(0).message() == null
                     || response.choices().get(0).message().content() == null
                     || response.choices().get(0).message().content().isBlank()) {
-                throw new IllegalStateException("OpenRouter API returned no reply content");
+
+                throw new IllegalStateException(
+                        "OpenRouter API returned no reply content");
             }
 
             return response.choices().get(0).message().content();
+
         } catch (RestClientResponseException e) {
+
+            if (e.getStatusCode().value() == 401) {
+                throw new OpenRouterAuthenticationException(
+                        "AI provider authentication failed. Please contact support.", e);
+            }
+
             throw new IllegalStateException(
                     "OpenRouter API error: HTTP " + e.getStatusCode().value(), e);
+
         } catch (RestClientException e) {
-            throw new IllegalStateException("Failed to call OpenRouter API", e);
+
+            throw new IllegalStateException(
+                    "Failed to call OpenRouter API", e);
         }
     }
 
     private record ChatCompletionResponse(List<Choice> choices) {
+
         private record Choice(Message message) {
         }
 
