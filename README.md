@@ -97,7 +97,7 @@ curl -X POST http://localhost:8080/api/email/generate \
 
 **Response:** the generated reply as text. The backend handles AI API failures, missing configuration, and validation errors. Exact status codes and error bodies are not documented yet.
 
-** DEMO **
+## DEMO
 <img width="1908" height="935" alt="image" src="https://github.com/user-attachments/assets/4951de80-0ea6-4580-ad87-5b3c35397fc4" />
 
 
