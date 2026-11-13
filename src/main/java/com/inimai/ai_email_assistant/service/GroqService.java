@@ -11,20 +11,17 @@ import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestClientResponseException;
 
-import Exception.OpenRouterAuthenticationException;
-
-
 @Service
-public class OpenRouterService {
+public class GroqService {
 
     private final RestClient restClient;
     private final String apiKey;
     private final String model;
 
-    public OpenRouterService(
-            @Value("${openrouter.api-key}") String apiKey,
-            @Value("${openrouter.base-url}") String baseUrl,
-            @Value("${openrouter.model}") String model) {
+    public GroqService(
+            @Value("${groq.api-key}") String apiKey,
+            @Value("${groq.base-url}") String baseUrl,
+            @Value("${groq.model}") String model) {
 
         this.restClient = RestClient.builder()
                 .baseUrl(baseUrl)
@@ -38,7 +35,7 @@ public class OpenRouterService {
 
         if (apiKey == null || apiKey.isBlank()) {
             throw new IllegalStateException(
-                    "OPENROUTER_API_KEY environment variable is not set");
+                    "GROQ_API_KEY environment variable is not set");
         }
 
         Map<String, Object> requestBody = Map.of(
@@ -56,6 +53,7 @@ public class OpenRouterService {
                                         + "\n\nInstruction:\n" + instruction)));
 
         try {
+
             ChatCompletionResponse response = restClient.post()
                     .uri("/chat/completions")
                     .header(HttpHeaders.AUTHORIZATION, "Bearer " + apiKey)
@@ -72,25 +70,20 @@ public class OpenRouterService {
                     || response.choices().get(0).message().content().isBlank()) {
 
                 throw new IllegalStateException(
-                        "OpenRouter API returned no reply content");
+                        "Groq API returned no reply content");
             }
 
             return response.choices().get(0).message().content();
 
         } catch (RestClientResponseException e) {
 
-            if (e.getStatusCode().value() == 401) {
-                throw new OpenRouterAuthenticationException(
-                        "AI provider authentication failed. Please contact support.", e);
-            }
-
             throw new IllegalStateException(
-                    "OpenRouter API error: HTTP " + e.getStatusCode().value(), e);
+                    "Groq API error: HTTP " + e.getStatusCode().value(), e);
 
         } catch (RestClientException e) {
 
             throw new IllegalStateException(
-                    "Failed to call OpenRouter API", e);
+                    "Failed to call Groq API", e);
         }
     }
 

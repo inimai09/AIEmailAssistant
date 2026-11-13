@@ -1,3 +1,6 @@
+console.log("Chrome:", typeof chrome);
+console.log("Runtime:", typeof chrome?.runtime);
+console.log("SendMessage:", typeof chrome?.runtime?.sendMessage);
 (() => {
   const MARKER = "data-aea-btn";
   const PANEL_ID = "aea-panel";
