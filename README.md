@@ -6,9 +6,6 @@ A Gmail Chrome extension built with **Java, Spring Boot, and JavaScript** that h
 
 <img width="1899" height="942" alt="AI Email Assistant screenshot" src="https://github.com/user-attachments/assets/d4259648-29c0-4c46-80a6-c3b3e7869c49" />
 
-## Demo
-![Uploading image.png…]()
-
 
 ## Features
 
